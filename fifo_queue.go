@@ -14,7 +14,7 @@ const (
 
 // FIFO (First In First Out) concurrent queue
 type FIFO struct {
-	slice       []interface{}
+	Slice       []interface{}
 	rwmutex     sync.RWMutex
 	lockRWmutex sync.RWMutex
 	isLocked    bool
@@ -33,7 +33,7 @@ func NewFIFO() *FIFO {
 }
 
 func (st *FIFO) initialize() {
-	st.slice = make([]interface{}, 0)
+	st.Slice = make([]interface{}, 0)
 	st.waitForNextElementChan = make(chan chan interface{}, WaitForNextElementChanCapacity)
 	st.unlockDequeueOrWaitForNextElementChan = make(chan struct{}, WaitForNextElementChanCapacity)
 }
@@ -63,7 +63,7 @@ func (st *FIFO) Enqueue(value interface{}) error {
 			// lock the object to enqueue the element into the slice
 			st.rwmutex.Lock()
 			// enqueue the element
-			st.slice = append(st.slice, value)
+			st.Slice = append(st.Slice, value)
 			defer st.rwmutex.Unlock()
 		}
 
@@ -71,7 +71,7 @@ func (st *FIFO) Enqueue(value interface{}) error {
 		// lock the object to enqueue the element into the slice
 		st.rwmutex.Lock()
 		// enqueue the element
-		st.slice = append(st.slice, value)
+		st.Slice = append(st.Slice, value)
 		defer st.rwmutex.Unlock()
 	}
 
@@ -87,13 +87,13 @@ func (st *FIFO) Dequeue() (interface{}, error) {
 	st.rwmutex.Lock()
 	defer st.rwmutex.Unlock()
 
-	len := len(st.slice)
+	len := len(st.Slice)
 	if len == 0 {
 		return nil, NewQueueError(QueueErrorCodeEmptyQueue, "empty queue")
 	}
 
-	elementToReturn := st.slice[0]
-	st.slice = st.slice[1:]
+	elementToReturn := st.Slice[0]
+	st.Slice = st.Slice[1:]
 
 	return elementToReturn, nil
 }
@@ -115,7 +115,7 @@ func (st *FIFO) DequeueOrWaitForNextElementContext(ctx context.Context) (interfa
 
 		// get the slice's len
 		st.rwmutex.Lock()
-		length := len(st.slice)
+		length := len(st.Slice)
 		st.rwmutex.Unlock()
 
 		if length == 0 {
@@ -173,12 +173,12 @@ func (st *FIFO) DequeueOrWaitForNextElementContext(ctx context.Context) (interfa
 		st.rwmutex.Lock()
 
 		// verify that at least 1 item resides on the queue
-		if len(st.slice) == 0 {
+		if len(st.Slice) == 0 {
 			st.rwmutex.Unlock()
 			continue
 		}
-		elementToReturn := st.slice[0]
-		st.slice = st.slice[1:]
+		elementToReturn := st.Slice[0]
+		st.Slice = st.Slice[1:]
 
 		st.rwmutex.Unlock()
 		return elementToReturn, nil
@@ -194,11 +194,11 @@ func (st *FIFO) Get(index int) (interface{}, error) {
 	st.rwmutex.RLock()
 	defer st.rwmutex.RUnlock()
 
-	if len(st.slice) <= index {
+	if len(st.Slice) <= index {
 		return nil, NewQueueError(QueueErrorCodeIndexOutOfBounds, fmt.Sprintf("index out of bounds: %v", index))
 	}
 
-	return st.slice[index], nil
+	return st.Slice[index], nil
 }
 
 // Remove removes an element from the queue
@@ -210,12 +210,12 @@ func (st *FIFO) Remove(index int) error {
 	st.rwmutex.Lock()
 	defer st.rwmutex.Unlock()
 
-	if len(st.slice) <= index {
+	if len(st.Slice) <= index {
 		return NewQueueError(QueueErrorCodeIndexOutOfBounds, fmt.Sprintf("index out of bounds: %v", index))
 	}
 
 	// remove the element
-	st.slice = append(st.slice[:index], st.slice[index+1:]...)
+	st.Slice = append(st.Slice[:index], st.Slice[index+1:]...)
 
 	return nil
 }
@@ -225,7 +225,7 @@ func (st *FIFO) GetLen() int {
 	st.rwmutex.RLock()
 	defer st.rwmutex.RUnlock()
 
-	return len(st.slice)
+	return len(st.Slice)
 }
 
 // GetCap returns the queue's capacity
@@ -233,7 +233,7 @@ func (st *FIFO) GetCap() int {
 	st.rwmutex.RLock()
 	defer st.rwmutex.RUnlock()
 
-	return cap(st.slice)
+	return cap(st.Slice)
 }
 
 // Lock // Locks the queue. No enqueue/dequeue operations will be allowed after this point.

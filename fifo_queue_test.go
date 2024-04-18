@@ -166,12 +166,12 @@ func (suite *FIFOTestSuite) TestGetLenMultipleGRs() {
 // single GR getCapacity
 func (suite *FIFOTestSuite) TestGetCapSingleGR() {
 	// initial capacity
-	suite.Equal(cap(suite.fifo.slice), suite.fifo.GetCap(), "unexpected capacity")
+	suite.Equal(cap(suite.fifo.Slice), suite.fifo.GetCap(), "unexpected capacity")
 
 	// checking after adding 2 items
 	suite.fifo.Enqueue(1)
 	suite.fifo.Enqueue(2)
-	suite.Equal(cap(suite.fifo.slice), suite.fifo.GetCap(), "unexpected capacity")
+	suite.Equal(cap(suite.fifo.Slice), suite.fifo.GetCap(), "unexpected capacity")
 }
 
 // ***************************************************************************************
