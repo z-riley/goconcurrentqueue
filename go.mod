@@ -1,4 +1,4 @@
-module github.com/zac460/goconcurrentqueue
+module github.com/z-riley/goconcurrentqueue
 
 go 1.17
 
